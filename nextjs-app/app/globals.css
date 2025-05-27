@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+ :root {
+        --font-display: 'Standerd', sans-serif;
+        --font-body: 'TomatoGrotesk', sans-serif;
+        --primary:"#FF6B00",
+        --secondary:"#0E0E0E"
+      }
+
+      body {
+        color: #111111;
+        font-family: var(--font-body);
+        font-size: 1.25vw;
+        line-height: 1.4;
+        background-color: #ffffff;
+      }

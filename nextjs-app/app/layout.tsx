@@ -15,6 +15,8 @@ import { sanityFetch, SanityLive } from "@/sanity/lib/live";
 import { settingsQuery } from "@/sanity/lib/queries";
 import { resolveOpenGraphImage } from "@/sanity/lib/utils";
 import { handleError } from "./client-utils";
+import localFont from "next/font/local";
+
 
 /**
  * Generate metadata for the page.
@@ -50,13 +52,55 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const standerd = localFont({
+  src: [
+    {
+      path: "./fonts/Standerd-Regular.woff",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Standerd-Medium.woff",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Standerd-SemiBold.woff",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/Standerd-Bold.woff",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-display",
   display: "swap",
+  fallback: ["system-ui, sans-serif"],
 });
-
+const grotesk = localFont({
+  src: [
+    {
+      path: "./fonts/TomatoGrotesk-Regular.woff",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/TomatoGrotesk-Medium.woff",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "./fonts/TomatoGrotesk-Bold.woff",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-body",
+  display: "swap",
+  fallback: ["system-ui, sans-serif"],
+});
 export default async function RootLayout({
   children,
 }: {
@@ -65,23 +109,20 @@ export default async function RootLayout({
   const { isEnabled: isDraftMode } = await draftMode();
 
   return (
-    <html lang="en" className={`${inter.variable} bg-white text-black`}>
-      <body>
+    <html lang="en" className={`${standerd.variable} ${grotesk.variable}  bg-white text-black`}>
+      <body >
         <section className="min-h-screen pt-24">
-          {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
           <Toaster />
           {isDraftMode && (
             <>
               <DraftModeToast />
-              {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
               <VisualEditing />
             </>
           )}
-          {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
           <SanityLive onError={handleError} />
-          <Header />
+          {/* <Header /> */}
           <main className="">{children}</main>
-          <Footer />
+          {/* <Footer /> */}
         </section>
         <SpeedInsights />
       </body>
