@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import { type PortableTextBlock } from "next-sanity";
 import { Suspense } from "react";
 
-import Avatar from "@/app/components/Avatar";
-import CoverImage from "@/app/components/CoverImage";
-import { MorePosts } from "@/app/components/Posts";
-import PortableText from "@/app/components/PortableText";
+import Avatar from "@/app/componentsSanity/Avatar";
+import CoverImage from "@/app/componentsSanity/CoverImage";
+import { MorePosts } from "@/app/componentsSanity/Posts";
+import PortableText from "@/app/componentsSanity/PortableText";
 import { sanityFetch } from "@/sanity/lib/live";
 import { postPagesSlugs, postQuery } from "@/sanity/lib/queries";
 import { resolveOpenGraphImage } from "@/sanity/lib/utils";

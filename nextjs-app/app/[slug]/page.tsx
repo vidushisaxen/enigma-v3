@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Head from "next/head";
 
-import PageBuilderPage from "@/app/components/PageBuilder";
+import PageBuilderPage from "@/app/componentsSanity/PageBuilder";
 import { sanityFetch } from "@/sanity/lib/live";
 import { getPageQuery, pagesSlugs } from "@/sanity/lib/queries";
 import { GetPageQueryResult } from "@/sanity.types";
-import { PageOnboarding } from "@/app/components/Onboarding";
+import { PageOnboarding } from "@/app/componentsSanity/Onboarding";
 
 type Props = {
   params: Promise<{ slug: string }>;
