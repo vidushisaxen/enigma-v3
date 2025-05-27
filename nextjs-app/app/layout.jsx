@@ -53,7 +53,7 @@ const standerd = localFont({
     { path: "./fonts/Standerd-SemiBold.woff", weight: "600", style: "normal" },
     { path: "./fonts/Standerd-Bold.woff", weight: "700", style: "normal" },
   ],
-  variable: "--font-display",
+  variable: "--font-body",
   display: "swap",
   fallback: ["system-ui, sans-serif"],
 });
@@ -64,7 +64,7 @@ const grotesk = localFont({
     { path: "./fonts/TomatoGrotesk-Medium.woff", weight: "500", style: "normal" },
     { path: "./fonts/TomatoGrotesk-Bold.woff", weight: "700", style: "normal" },
   ],
-  variable: "--font-body",
+  variable: "--font-display",
   display: "swap",
   fallback: ["system-ui, sans-serif"],
 });
