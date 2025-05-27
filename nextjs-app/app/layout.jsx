@@ -76,7 +76,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${standerd.variable} ${grotesk.variable} bg-white text-black`}>
       <body>
-        <section className="min-h-screen pt-24">
+        <section className="">
           <Toaster />
           {isDraftMode && (
             <>
