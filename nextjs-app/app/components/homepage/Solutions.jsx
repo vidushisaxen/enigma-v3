@@ -69,7 +69,7 @@ const Solutions = () => {
                 <span className="w-full h-[1px] bg-black" />
               </div>
             </div>
-            <div className="w-fit flex">
+            <button className="w-fit flex">
               <div className="w-fit h-full px-[3.5vw] py-[0.7vw] rounded-full border border-black-1 font-medium font-display">
                Know More
               </div>
@@ -82,7 +82,7 @@ const Solutions = () => {
                   className="w-full h-full object-contain invert"
                 />
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>

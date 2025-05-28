@@ -3,7 +3,7 @@ import React from 'react'
 
 const TestimonialSection = () => {
   return (
-   <section className='w-screen h-[90vh] px-[4vw] bg-primary text-white' id='testimonial-section'>
+   <section className='w-screen h-[90vh] px-[4vw] bg-gradient text-white' id='testimonial-section'>
     <div className='w-full h-full flex justify-between  pl-[5vw] pt-[12%]'>
         <div className='flex flex-col gap-[1vw] '>
             <Image src={"/assets/images/homepage/testimonial/testimonial-image-1.png"} alt='testimonial image' className='w-[7.5vw] h-[7.5vw] rounded-full' width={100} height={100} />
