@@ -20,7 +20,7 @@ const About = () => {
             tools and our proprietary approach we craft delightful and intuitive
             experiences.
           </p>
-          <div className="w-fit flex">
+          <button className="w-fit flex">
             <div className="w-fit h-full px-[3.5vw] py-[0.7vw] rounded-full border border-white font-medium font-display">
                 Say Hi
             </div>
@@ -28,7 +28,7 @@ const About = () => {
              <Image src={"/assets/icons/arrow-diagonal.svg"} alt="arrow-diagonal" width={50} height={50} className="w-full h-full object-contain"/>
             </div>
 
-          </div>
+          </button>
         </div>
       </div>
     </section>
