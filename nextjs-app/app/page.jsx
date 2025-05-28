@@ -3,6 +3,8 @@ import Hero from './components/homepage/Hero'
 import About from './components/homepage/About'
 import Work from './components/homepage/Work'
 import Testiomonials from './components/homepage/Testimonials'
+import Solutions from './components/homepage/Solutions'
+import Clients from './components/homepage/Clients'
 import WaveShader from './components/WaveShader'
 import MainHero from './components/MainHero'
 
@@ -17,6 +19,8 @@ const page = () => {
     <About/>
     <Work/>
     <Testiomonials/>
+    <Solutions/>
+    <Clients/>
     </>
   );
 };

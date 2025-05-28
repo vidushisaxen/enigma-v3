@@ -6,7 +6,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const Work = () => {
   return (
-    <section className='w-screen h-[300vh] px-[4vw] py-[7vw] bg-black-1'>
+    <section className='w-screen h-fit px-[4vw] py-[7vw] bg-black-1'>
         <div className='w-full h-[90vh] flex justify-between gap-[1vw] sticky top-[5%]'>
             <div className='w-full h-full rounded-[2.5vw] bg-primary p-[2vw] flex flex-col justify-between work-1-content'>
                 <p className='text-[8vw] w-[75%] font-display leading-[1]'>

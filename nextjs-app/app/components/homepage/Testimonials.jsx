@@ -2,7 +2,7 @@ import React from 'react'
 import TestimonialSection from "./TestimonialSection"
 const Testimonials = () => {
   return (
-    <section className='w-screen h-[400vh] relative '>
+    <section className='w-screen h-[200vh] relative '>
         <div className='w-full h-screen flex items-center gap-[4vw] sticky top-0 px-[4vw]'>
             <div className='w-full flex gap-[4vw]'>
             <div className='w-[4vw] h-[4vw] relative bg-primary rounded-full mt-[3vw]'>
