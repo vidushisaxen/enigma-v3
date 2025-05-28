@@ -4,11 +4,18 @@
   --background: #fefefe;
   --font-body: "Standerd", sans-serif;
   --font-display: "TomatoGrotesk", sans-serif;
-  --primary: "#FF6B00";
-  --secondary: "#0E0E0E";
-  --black-1:"#060709";
+  --primary: #FF6B00;
+  --secondary: #0E0E0E;
+  --black-1:#060709;
 }
+@theme inline{
+  --color-black-1:var(--black-1);
+  --color-primary:var(--primary);
+  --color-secondary:var(--secondary);
+  --font-display:var(--font-display);
+  --font-body:var(--font-body);
 
+}
 body {
   /* color: #111111; */
   width: 100%;

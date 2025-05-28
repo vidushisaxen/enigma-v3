@@ -11,6 +11,7 @@ import { settingsQuery } from "@/sanity/lib/queries";
 import { resolveOpenGraphImage } from "@/sanity/lib/utils";
 import { handleError } from "./client-utils";
 import localFont from "next/font/local";
+import LenisSmoothScroll from "./components/LenisSmoothScroll";
 
 // Metadata generation function
 export async function generateMetadata() {
@@ -74,6 +75,8 @@ export default async function RootLayout({ children }) {
   const { isEnabled: isDraftMode } = await draftMode();
 
   return (
+    <>
+    <LenisSmoothScroll/>
     <html lang="en" className={`${standerd.variable} ${grotesk.variable} bg-white text-black`}>
       <body>
         <section className="">
@@ -92,5 +95,7 @@ export default async function RootLayout({ children }) {
         <SpeedInsights />
       </body>
     </html>
+    
+    </>
   );
 }

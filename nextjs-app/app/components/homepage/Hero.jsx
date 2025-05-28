@@ -14,7 +14,7 @@ import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import React, { useEffect, useState, useRef } from "react";
 import { Suspense } from "react";
-import WaveShader from "./WaveShader";
+import WaveShader from "../WaveShader";
 
 gsap.registerPlugin(ScrollTrigger);
 
