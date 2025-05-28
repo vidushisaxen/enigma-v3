@@ -45,3 +45,7 @@ h3{
   font-size: 3.4vw;
   line-height: 1.18;
 }
+.white-stroke-text{
+    -webkit-text-stroke: 3px white;
+     color:transparent;
+}

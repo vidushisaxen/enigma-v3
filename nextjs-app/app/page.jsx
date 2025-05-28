@@ -1,28 +1,62 @@
 import React from 'react'
-import Hero from './components/homepage/Hero'
+import HeroComp from './components/homepage/Hero/HeroComp'
 import About from './components/homepage/About'
 import Work from './components/homepage/Work'
 import Testiomonials from './components/homepage/Testimonials'
 import Solutions from './components/homepage/Solutions'
 import Clients from './components/homepage/Clients'
+import Industries from "./components/homepage/Industries"
+import Achievements from './components/homepage/Achievements'
+import FAQ from './components/homepage/FAQ'
 import WaveShader from './components/WaveShader'
 import MainHero from './components/MainHero'
 
 const page = () => {
   return (
     <>
-    <div className="w-screen h-[90vh] px-[4vw] py-[5vw] flex justify-between items-end">
-      {/* <h1 className="flex flex-col"><span>Digital</span><span>Experience</span><span>Design Agency</span></h1> */}
-      <h3 className="w-[60%]">From Concept to Conversion We're Changing the Face of Web.</h3>
-      <p className="w-[27%]">Harnessing the power of Emotion, Design, Technology & Neuromarketing, we create Digital Brand Experiences that propel your success in the enigmatic realm of bits & bytes.</p>
-    </div>
+   <HeroComp/>
     <About/>
     <Work/>
     <Testiomonials/>
     <Solutions/>
+    <Industries/>
+    <Achievements/>
     <Clients/>
+    <FAQ content={faqContent}/>
     </>
   );
 };
 
 export default page;
+const faqContent = [
+  {
+    question: 'What is Montra?',
+    answer:
+      "Choosing between different options such as online banking, mobile apps, in-person transfers at a bank branch, or using a bank's ATM.",
+  },
+  {
+    question: 'Is Montra licensed?',
+    answer:
+      "Choosing between different options such as online banking, mobile apps, in-person transfers at a bank branch, or using a bank's ATM. Choosing between different options such as online banking, mobile apps, in-person transfers at a bank branch, or using a bank's ATM.",
+  },
+  {
+    question: 'What is unique about Montra?',
+    answer:
+      "Choosing between different options such as online banking, mobile apps, in-person transfers at a bank branch, or using a bank's ATM.",
+  },
+  {
+    question: 'How do we Sign-Up on Montra?',
+    answer:
+      "Choosing between different options such as online banking, mobile apps, in-person transfers at a bank branch, or using a bank's ATM. Choosing between different options such as online banking.",
+  },
+  {
+    question: 'How do we Sign-In on Montra?',
+    answer:
+      "Choosing between different options such as online banking, mobile apps, in-person transfers at a bank branch, or using a bank's ATM.",
+  },
+  {
+    question: 'Is enabling Face / Touch / Fingerprint ID safe?',
+    answer:
+      "Choosing between different options such as online banking, mobile apps, in-person transfers at a bank branch, or using a bank's ATM.",
+  },
+]

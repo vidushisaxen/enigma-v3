@@ -1,394 +1,343 @@
 "use client";
 import {
-    MeshTransmissionMaterial,
-    OrbitControls,
-    useGLTF,
-    useTexture,
-    useVideoTexture,
+    Environment,
+  MeshTransmissionMaterial,
+  OrbitControls,
+  shaderMaterial,
+  useGLTF,
+  useTexture,
+  useVideoTexture,
 } from "@react-three/drei";
 import { useControls } from "leva";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { degToRad} from "three/src/math/MathUtils";
 import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
+import ScrollTrigger from "gsap/dist/ScrollTrigger";
 import * as THREE from "three";
-import { Canvas } from "@react-three/fiber";
-import React, { useEffect, useState, useRef } from "react";
-import { Suspense } from "react";
-import WaveShader from "../WaveShader";
+import { Canvas, extend, useFrame } from "@react-three/fiber";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const  EnigmaModelWeb = ({ })=> {
-    const modelMesh = useRef(null);
-    const model = useGLTF("/assets/models/enigmaLogo.glb");
-    const bgref = useRef(null);
-    const [planeRotation, setPlaneRotation] = useState(false);
-    const { nodes } = model;
-
-    const planeRef = useRef();
-    const planeRef2 = useRef();
-    const ModelPart1 = useRef();
-    const ModelPart2 = useRef();
-    const ModelPart3 = useRef();
-    const ModelPart4 = useRef();
-
-    const [toggleBrust, setToggleBrust] = useState(true);
-
-    const videoTexture = useVideoTexture(
-        "https://cdn.pixabay.com/video/2023/10/20/185787-876545918_large.mp4"
-    );
-    const bgTexture = useTexture("/assets/models/bg.png");
-
-    const modelParts = [
-        { ref: ModelPart1, x: 0.3, y: -0.3 },
-        { ref: ModelPart2, x: 0.3, y: 0.3 },
-        { ref: ModelPart3, x: -0.3, y: 0.3 },
-        { ref: ModelPart4, x: -0.3, y: -0.3 },
-    ];
-
-    const [modelPlaneRotation, setModelPlaneRotation] = useState({
-        x: degToRad(0),
-        y: -Math.PI / 2,
-        z: degToRad(0),
-    });
-
-    useEffect(() => {
-        const handleMouseMove = (e) => {
-            if (planeRotation) {
-                const x = (e.clientX / window.innerWidth) * 2 - 1;
-                const targetY = x / 2;
-                gsap.to(modelPlaneRotation, {
-                    y: targetY,
-                    duration: 3,
-                    ease: "power4.out",
-                    smoothness: 0.5,
-                });
-            } else {
-                setPlaneRotation(false);
-                return () => window.removeEventListener("mousemove", handleMouseMove);
+const WaveShaderMaterial = shaderMaterial(
+        {
+          u_time: 0,
+          u_resolution: new THREE.Vector2(),
+          u_amplitude: 0.1,
+          u_frequency: 10.0,
+          u_speed: 1.5,
+          u_colorTop: new THREE.Color(0xffffff),
+          u_colorMiddle: new THREE.Color(0xffa500),
+          u_colorBottom: new THREE.Color(0x000000),
+        },
+        // Vertex Shader
+        `
+          varying vec2 v_uv;
+          void main() {
+            v_uv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        // Fragment Shader
+        `
+          precision mediump float;
+      
+          varying vec2 v_uv;
+          uniform float u_time;
+          uniform vec2 u_resolution;
+          uniform float u_amplitude;
+          uniform float u_frequency;
+          uniform float u_speed;
+          uniform vec3 u_colorTop;
+          uniform vec3 u_colorMiddle;
+          uniform vec3 u_colorBottom;
+      
+          float wave(vec2 uv, float frequency, float amplitude, float speed) {
+            return sin(uv.x * frequency + u_time * speed) * amplitude;
+          }
+     void main() {
+      vec2 uv = v_uv;
+      float waveOffset = wave(uv, u_frequency, u_amplitude, u_speed);
+      float y = clamp(uv.y + waveOffset, 0.0, 1.0);
+      vec3 bottomColor = mix(u_colorBottom, vec3(1.0), 0.15);
+      vec3 middleColor = mix(u_colorMiddle, vec3(1.0), 0.1);
+      vec3 topColor = mix(u_colorTop, vec3(1.0), 0.05);
+    
+      vec3 color;
+    
+      if (y < 0.5) {
+        float t = smoothstep(0.0, 0.5, y);
+        color = mix(bottomColor, middleColor, t);
+      } else {
+        float t = smoothstep(0.5, 1.0, y);
+        color = mix(middleColor, topColor, t);
+      }
+      gl_FragColor = vec4(color*1.5, 5.0);
+    }
+        `
+      )
+      extend({ WaveShaderMaterial });
+      
+function WaveBackground() {
+        const meshRef = useRef()
+        useFrame(({ clock, size }) => {
+            if (meshRef.current) {
+                meshRef.current.material.u_time = clock.getElapsedTime()
+                meshRef.current.material.u_resolution.set(size.width, size.height)
             }
-        };
+        })
+        return (
+            <mesh scale={2} ref={meshRef} position={[0, 0, -5]} >
+                <planeGeometry args={[16, 9]} />
+                <waveShaderMaterial
+        u_time={0.3}
+        u_amplitude={0.1}
+        u_frequency={8.0}
+        u_speed={2.0}
+        u_colorTop={new THREE.Color('#FF5600')}
+        u_colorMiddle={new THREE.Color('#FE9D50')}
+        u_colorBottom={new THREE.Color('#FFFFFF')}
+      />
+            </mesh>
+        )
+    }
 
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
-    }, [planeRotation]);
+ function EnigmaModelWeb({}) {
+  const bgref = useRef(null);
+  const backgroundModel = useGLTF("/assets/models/fractalGlassModel.glb");
+  const texture = useTexture("/assets/models/bg.png")
+  // const materialsProps = useControls({
+  //   // Core transmission properties
+  //   transmission: { value: 1, min: 0, max: 1 },
+  //   thickness: { value: 0.02, min: 0, max: 2, step: 0.01 },
+  //   roughness: { value: 0.05, min: 0, max: 1, step: 0.01 },
+  //   ior: { value: 1.05, min: 1, max: 2.5, step: 0.01 },
+    
+  //   // Color and brightness controls
+  //   chromaticAberration: { value: 0.1, min: 0, max: 1, step: 0.01 },
+  //   anisotropy: { value: 0, min: 0, max: 1, step: 0.01 },
+  //   distortion: { value: 0.1, min: 0, max: 1, step: 0.01 },
+  //   distortionScale: { value: 0.2, min: 0.01, max: 1, step: 0.01 },
+  //   temporalDistortion: { value: 0.1, min: 0, max: 1, step: 0.01 },
+    
+  //   // Attenuation (color preservation)
+  //   attenuationDistance: { value: 0.1, min: 0.01, max: 10, step: 0.01 },
+  //   attenuationColor: "#ffffff",
+    
+  //   // Surface properties
+  //   clearcoat: { value: 0.05, min: 0, max: 1, step: 0.01 },
+  //   clearcoatRoughness: { value: 0.01, min: 0, max: 1, step: 0.01 },
+  //   reflectivity: { value: 0.05, min: 0, max: 1, step: 0.01 },
+    
+  //   // Color tinting
+  //   color: "#ffffff",
+    
+  //   // Advanced properties for vibrant colors
+  //   iridescence: { value: 0.2, min: 0, max: 1, step: 0.01 },
+  //   iridescenceIOR: { value: 1.3, min: 1, max: 2.333, step: 0.01 },
+  //   iridescenceThicknessRange: { value: [100, 400], min: 0, max: 1000, step: 1 },
+    
+  //   // Transparency and opacity
+  //   opacity: { value: 1, min: 0, max: 1, step: 0.01 },
+  //   transparent: true,
+    
+  //   // Backside properties
+  //   backside: true,
+  //   backsideThickness: { value: 0.1, min: 0, max: 2, step: 0.01 },
+    
+  //   // Sampling for quality
+  //   samples: { value: 16, min: 1, max: 32, step: 1 },
+  //   resolution: { value: 1024, min: 64, max: 2048, step: 64 },
+  // });
+  return (
+    <group position={[0, 0, 0]}>
+      <group
+        ref={bgref}
+        scale={1}
+        position={[0, 0, 0]}
+        rotation={[0, 0, 0]}
+      >
+        <mesh geometry={backgroundModel.nodes.Plane002.geometry}>
+          {/* <MeshTransmissionMaterial {...materialsProps}/> */}
+          <meshStandardMaterial map={texture} side={THREE.DoubleSide}/>
 
-    const BrustON = () => {
-        if (toggleBrust) {
-            modelParts.forEach(({ ref, x, y }) => {
-                gsap.to(ref.current.position, {
-                    x,
-                    y,
-                    duration: 0.5,
-                    ease: "power2.out",
-                });
-            });
-        }
-    };
+        </mesh>
+      </group>
+    </group>
+  );
+}
+const EnigmaModel = () => {
+  const model = useGLTF('/assets/models/enigmaLogo.glb')
+  const { nodes } = model
+  const [toggleBrust, setToggleBrust] = useState(true)
+const groupRef = useRef(null);
+  const ModelPart1 = useRef()
+  const ModelPart2 = useRef()
+  const ModelPart3 = useRef()
+  const ModelPart4 = useRef()
+  const mouse = useRef({ x: 0, y: 0 })
 
-    const BrustOFF = () => {
-        if (toggleBrust) {
-            modelParts.forEach(({ ref }) => {
-                gsap.to(ref.current.position, {
-                    x: 0,
-                    y: 0,
-                    duration: 0.5,
-                    ease: "power2.out",
-                });
-            });
-        }
-    };
+  const modelParts = [
+    { ref: ModelPart1, x: 0.3, y: -0.3 },
+    { ref: ModelPart2, x: 0.3, y: 0.3 },
+    { ref: ModelPart3, x: -0.3, y: 0.3 },
+    { ref: ModelPart4, x: -0.3, y: -0.3 }
+  ]
 
-    useEffect(() => {
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: ".mainSection",
-                start: "0% -10%",
-                end: "+2800 top",
-                scrub: true,
-                pin: true,
-            },
-        });
-
-        tl.to(
-            bgref.current.position,
-            {
-                y: 17,
-                duration: 10,
-                ease: "linear",
-                onComplete: () => {
-                    setToggleBrust(false);
-                },
-                onReverseComplete: () => {
-                    setToggleBrust(true);
-                },
-            },
-            "<"
-        );
-
-        // tl.to(
-        //     modelMesh.current.rotation,
-        //     {
-        //         y: Math.PI * 2,
-        //         duration: 10,
-        //         ease: "linear",
-        //     },
-        //     "<"
-        // );
-        // tl.to(
-        //     modelMesh.current.position,
-        //     {
-        //         x: 0,
-        //         duration: 10,
-        //         ease: "linear",
-        //     },
-        //     "<"
-        // );
-        // tl.to(modelMesh.current.scale, {
-        //     x: 10,
-        //     y: 10,
-        //     z: 10,
-        //     delay: 1,
-        //     duration: 10,
-        //     ease: "power2.inOut",
-        // });
-
-        // tl.to(
-        //     planeRef.current.rotation,
-        //     {
-        //         y: 0,
-        //         duration: 5,
-        //         scale: 10,
-        //         delay: 2.5,
-        //         ease: "linear",
-        //         onUpdate: () => {
-        //             setModelPlaneRotation({
-        //                 x: planeRef.current.rotation.x,
-        //                 y: planeRef.current.rotation.y,
-        //                 z: planeRef.current.rotation.z,
-        //             });
-        //         },
-        //         onComplete: () => {
-        //             setPlaneRotation(true);
-        //         },
-        //         onReverseComplete: () => {
-        //             setPlaneRotation(false);
-        //         },
-        //     },
-
-        //     "<+1"
-        // );
-        // tl.to(
-        //     planeRef.current.scale,
-        //     {
-        //         x: 1.8,
-        //         y: 1.8,
-        //         duration: 2,
-        //         ease: "linear",
-        //         overwrite: "auto",
-        //     },
-        //     "<"
-        // );
-
-        // tl.to(
-        //     planeRef2.current.material,
-        //     {
-        //         opacity: 1,
-        //         duration: 2,
-        //         ease: "linear",
-        //     },
-        //     "<+1"
-        // );
-
-    }, []);
-
-    // useEffect(() => {
-    //     const scrollTriggerTimeline2 = gsap.timeline({
-    //         scrollTrigger: {
-    //             trigger: ".thirdSection",
-    //             start: "top -100%",
-    //             end: "100% top",
-    //             scrub: true,
-    //             pin: true,
-    //             // markers: true,
-    //         },
-    //     });
-    //     scrollTriggerTimeline2.to(planeRef.current.position, {
-    //         y: 10,
-    //         duration: 10,
-    //         delay: 15,
-    //         ease: "linear",
-    //         onReverseComplete: () => {
-    //             setPlaneRotation(true);
-    //         },
-    //     });
-    // });
-
-    const materialsProps = useControls({
-        thickness: { value: 3.51, min: 0, max: 10, step: 0.05 },
-        backsideThickness: { value: 2.72, min: 0, max: 3 },
-        roughness: { value: 0.0, min: 0, max: 1, step: 0.1 },
-        reflectivity: { value: 0.74, min: 0, max: 1, step: 0.01 },
-        anisotropy: { value: 0, min: 0, max: 1, step: 0.01 },
-        chromaticAberration: { value: 0.67, min: 0, max: 1 },
-        distortion: { value: 1.68, min: 0, max: 4, step: 0.01 },
-        temporalDistortion: { value: 0.03, min: 0, max: 1, step: 0.01 },
-        anisotropicBlur: { value: 4.46, min: 0, max: 5, step: 0.01 },
-        color: "#ffffff",
-        backside: { value: false },
-        transmission:{value:0.5,min:0,max:10,step:0.01}
-    });
-    const materialProps2= useControls({
-        transmission: { value: 1, min: 0, max: 1 },
-    ior: { value: 1.3, min: 0, max: 3, step: 0.1 },
-    clearcoat: { value: 1, min: 0.1, max: 1 },
-    clearcoatRoughness: { value: 0.0, min: 0, max: 1 },
-    distortionScale: { value: 0.1, min: 0.01, max: 1, step: 0.01 },
-    ior: { value: 0, min: 0, max: 2, step: 0.01 },
+  const BurstON = () => {
+    if (!toggleBrust) return
+    modelParts.forEach(({ ref, x, y }) => {
+      gsap.to(ref.current.position, {
+        x: x,
+        y: y,
+        duration: 0.5,
+        ease: 'power2.out'
+      })
     })
+  }
 
-    const normalMap = useTexture("/assets/models/Material_normal.png");
-    normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
-    normalMap.anisotropy = 16;
-    const backgroundModel = useGLTF("/assets/models/fractalGlassModel.glb");
+  const BurstOFF = () => {
+    if (!toggleBrust) return
+    modelParts.forEach(({ ref }) => {
+      gsap.to(ref.current.position, {
+        x: 0,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out'
+      })
+    })
+  }
 
-    const texture = useTexture("/assets/models/bg1.png");
+  const materialsProps = useControls({
+    thickness: { value: 3.51, min: 0, max: 10, step: 0.05 },
+    backsideThickness: { value: 0.0, min: 0, max: 3 },
+    roughness: { value: 0.5, min: 0, max: 1, step: 0.1 },
+    reflectivity: { value: 0.0, min: 0, max: 1, step: 0.01 },
+    anisotropy: { value: 0, min: 0, max: 1, step: 0.01 },
+    chromaticAberration: { value: 1.0, min: 0, max: 1 },
+    distortion: { value: 0.0, min: 0, max: 4, step: 0.01 },
+    temporalDistortion: { value: 0.0, min: 0, max: 1, step: 0.01 },
+    anisotropicBlur: { value: 5.0, min: 0, max: 5, step: 0.01 },
+    color: '#ffffff',
+    backside: { value: false }
+  })
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1
+      const y = -(e.clientY / window.innerHeight) * 2 + 1
+      mouse.current = { x, y }
+      if (e.clientX > window.innerWidth / 2) {
+        BurstON()
+      } else {
+        BurstOFF()
+      }
+    }
 
-    return (
-        <group position={[0, -3.5, 0]}>
-            <group
-                ref={bgref}
-                scale={0.8}
-                position={[0, 3, -15]}
-                rotation={[0, 0, 0]}
-            >
-                <mesh geometry={backgroundModel.nodes.Plane002.geometry}>
-                    {/* <meshStandardMaterial side={THREE.DoubleSide} map={texture} /> */}
-                    <MeshTransmissionMaterial {...materialProps2} />
-                </mesh>
-            </group>
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
-            {/* <group
-                ref={modelMesh}
-                onPointerEnter={BrustON}
-                onPointerLeave={BrustOFF}
-                scale={0.7}
-                position={[1.5, 3.4, 25]}
-            >
-                <group ref={ModelPart1}>
-                    <mesh {...nodes.Low_Poly}>
-                        <MeshTransmissionMaterial {...materialsProps} />
-                    </mesh>
-                </group>
+  useFrame(() => {
+    if (!groupRef.current) return
 
-                <group ref={ModelPart2}>
-                    <mesh {...nodes.Low_Poly001}>
-                        <MeshTransmissionMaterial {...materialsProps} />
-                    </mesh>
-                </group>
-
-                <group ref={ModelPart3}>
-                    <mesh {...nodes.Low_Poly002}>
-                        <MeshTransmissionMaterial {...materialsProps} />
-                    </mesh>
-                </group>
-
-                <group ref={ModelPart4}>
-                    <mesh {...nodes.Low_Poly003}>
-                        <MeshTransmissionMaterial {...materialsProps} />
-                    </mesh>
-                </group>
-            </group> */}
-
-            {/* <group
-                ref={planeRef}
-                position={[0, 3.5, 20]}
-                rotation={[
-                    modelPlaneRotation.x,
-                    modelPlaneRotation.y,
-                    modelPlaneRotation.z,
-                ]}
-            >
-                <mesh rotation={[degToRad(0), 0, 0]}>
-                    <planeGeometry args={[3, 1.5]} />
-                    <meshBasicMaterial map={videoTexture} toneMapped={false} />
-                </mesh>
-
-                <mesh
-                    ref={planeRef2}
-                    position={[0, -0.8, 0.25]}
-                    rotation={[degToRad(100), 0, 0]}
-                >
-                    <planeGeometry args={[3, 1.5]} />
-                    <MeshTransmissionMaterial {...materialsProps} />
-                </mesh>
-            </group> */}
-        </group>
-    );
+    const targetX = mouse.current.x * 0.3 
+    const targetY = mouse.current.y * 0.3
+    groupRef.current.rotation.y = THREE.MathUtils.lerp(
+      groupRef.current.rotation.y,
+      targetX,
+      0.1
+    )
+    groupRef.current.rotation.x = THREE.MathUtils.lerp(
+      groupRef.current.rotation.x,
+      -targetY,
+      0.1
+    )
+  })
+  return (
+    <group
+      position={[6, 0, 5]}
+      scale={1.5}
+      rotation={[Math.PI / 15, -Math.PI / 25, 0]}
+      ref={groupRef}
+     
+    >
+      <group ref={ModelPart1}>
+        <mesh geometry={nodes.Low_Poly.geometry}>
+          <MeshTransmissionMaterial {...materialsProps} />
+        </mesh>
+      </group>
+      <group ref={ModelPart2}>
+        <mesh geometry={nodes.Low_Poly001.geometry}>
+          <MeshTransmissionMaterial {...materialsProps} />
+        </mesh>
+      </group>
+      <group ref={ModelPart3}>
+        <mesh geometry={nodes.Low_Poly002.geometry}>
+          <MeshTransmissionMaterial {...materialsProps} />
+        </mesh>
+      </group>
+      <group ref={ModelPart4}>
+        <mesh geometry={nodes.Low_Poly003.geometry}>
+          <MeshTransmissionMaterial {...materialsProps} />
+        </mesh>
+      </group>
+    </group>
+  )
 }
 
-
 const Hero = () => {
-            const [lightPosition, setLightPosition] = useState({
-                x: 10,
-                y: 10,
-            });
+    const [lightPosition, setLightPosition] = useState({
+        x: 10,
+        y: 10,
+      });
+    
+      const mouseMove = (e) => {
+        const targetX = (e.clientX / window.innerWidth) * 20 - 10;
+        setLightPosition((prevPos) => ({
+          x: prevPos.x + (targetX - prevPos.x) * 0.5, 
+          y: 0,
+          z: 5,
+          duration: 1, 
+          ease: "power2.out",
+        }));
+      };
+      useEffect(() => {
+        window.addEventListener("mousemove", mouseMove);
+        return () => {
+          window.removeEventListener("mousemove", mouseMove);
+        };
+      }, []);
+  return (
+   <>
+   <div className="h-screen w-screen">
+    <Canvas
+    className="h-full w-full"
+        camera={{ fov: 20, position: [0, 0, 40] }}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          outputEncoding: THREE.sRGBEncoding,
+        }}
+        style={{
+          background: "#000000",
+        }}
+      >
+        <ambientLight intensity={0.8} />
 
-            const mouseMove = (e) => {
-                const targetX = (e.clientX / window.innerWidth) * 20 - 10;
-                setLightPosition((prevPos) => ({
-                    x: prevPos.x + (targetX - prevPos.x) * 0.1, 
-                    y: 0,
-                    z: 5,
-                    duration: 1, 
-                    ease: "power2.out",
-                }));
-            };
-            useEffect(() => {
-                window.addEventListener("mousemove", mouseMove);
-                return () => {
-                    window.removeEventListener("mousemove", mouseMove);
-                };
-            }, []);
-            return (
-                <section className="w-screen h-screen" style={{
-                    width:"100vw",
-                    height:"100vh"
-                }}>
-                    <Canvas
-                        camera={{ fov: 10, position: [0, 0, 40] }}
-                        gl={{
-                            antialias: true,
-                            toneMapping: THREE.ACESFilmicToneMapping,
-                            outputEncoding: THREE.sRGBEncoding,
-                        }}
-                        style={{
-                           
-                            width:"100%",
-                            height:"100%"
-                        }}
-                        className="w-screen h-screen z-5"
-                    >
-                        <ambientLight intensity={0.5} />
-
-                        <directionalLight
-                            position={[lightPosition.x, lightPosition.y, 10]}
-                            intensity={2}
-                        />
-                        {/* <Environment preset="city" /> */}
-                        <OrbitControls />
-                        <Suspense>
-                            
-                            <EnigmaModelWeb />
-                        </Suspense>
-                    </Canvas>
-                    <div className="absolute top-0 left-0 z-0">
-                        <WaveShader/>
-
-                    </div>
-                </section>
-            );
-        }
-
+        <directionalLight
+          position={[lightPosition.x, lightPosition.y, 10]}
+          intensity={3}
+        />
+        {/* <Environment preset="city" /> */}
+        {/* <OrbitControls /> */}
+        <Suspense>
+          <EnigmaModelWeb />
+          <WaveBackground/>
+          <EnigmaModel/>
+        </Suspense>
+      </Canvas>
+      </div>
+   </>
+  )
+}
 
 export default Hero

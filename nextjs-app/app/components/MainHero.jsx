@@ -6,160 +6,154 @@ import * as THREE from 'three'
 import { useControls } from 'leva'
 import gsap from 'gsap'
 
-// Create the wave shader material
-const WaveShaderMaterial = shaderMaterial(
-    {
-      u_time: 0,
-      u_resolution: new THREE.Vector2(),
-      u_amplitude: 0.1,
-      u_frequency: 10.0,
-      u_speed: 1.0, // Added speed uniform
-    },
-    // Vertex shader
-    `
-      attribute vec2 a_position;
-      varying vec2 v_uv;
-      void main() {
-        v_uv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    // Fragment shader
-    `
-      precision mediump float;
-      
-      varying vec2 v_uv;
-      uniform float u_time;
-      uniform vec2 u_resolution;
-      uniform float u_amplitude;
-      uniform float u_frequency;
-      uniform float u_speed;
+// const WaveShaderMaterial = shaderMaterial(
+//     {
+//       u_time: 0,
+//       u_resolution: new THREE.Vector2(),
+//       u_amplitude: 0.1,
+//       u_frequency: 10.0,
+//       u_speed: 1.5,
+//       u_colorTop: new THREE.Color(0xffffff),
+//       u_colorMiddle: new THREE.Color(0xffa500),
+//       u_colorBottom: new THREE.Color(0x000000),
+//     },
+//     // Vertex Shader
+//     `
+//       varying vec2 v_uv;
+//       void main() {
+//         v_uv = uv;
+//         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+//       }
+//     `,
+//     // Fragment Shader
+//     `
+//       precision mediump float;
   
-      float wave(vec2 uv, float frequency, float amplitude, float speed) {
-        return sin(uv.x * frequency + u_time * speed) * amplitude;
-      }
+//       varying vec2 v_uv;
+//       uniform float u_time;
+//       uniform vec2 u_resolution;
+//       uniform float u_amplitude;
+//       uniform float u_frequency;
+//       uniform float u_speed;
+//       uniform vec3 u_colorTop;
+//       uniform vec3 u_colorMiddle;
+//       uniform vec3 u_colorBottom;
   
-      void main() {
-        vec2 uv = v_uv;
-        
-        // Base colors
-        vec3 oceanColor = vec3(1.0, 0.5, 0.0);
-        vec3 yellowColor = vec3(0.0, 0.0, 0.0);
-        vec3 blackColor = vec3(1.0, 0.3, 0.0);
-  
-        // Create wave
-        float wave1 = wave(uv, u_frequency * 0.5, u_amplitude * 1.0, u_speed * 2.5);
-        
-        // Create smooth transitions between colors based on y position and wave
-        float bottomEdge = smoothstep(0.0, 0.3, uv.y + wave1);
-        float topEdge = smoothstep(0.1, 0.5, uv.y + wave1);
-        
-        // Smoothly blend between colors using the edges
-        vec3 bottomColor = mix(blackColor, oceanColor, bottomEdge);
-        vec3 finalColor = mix(bottomColor, yellowColor, topEdge);
-  
-        gl_FragColor = vec4(finalColor, 1.0);
-      }
-    `
-  )
-  
-  // Extend the material to make it available in JSX
-  extend({ WaveShaderMaterial })
+//       float wave(vec2 uv, float frequency, float amplitude, float speed) {
+//         return sin(uv.x * frequency + u_time * speed) * amplitude;
+//       }
+//  void main() {
+//   vec2 uv = v_uv;
+//   float waveOffset = wave(uv, u_frequency, u_amplitude, u_speed);
+//   float y = clamp(uv.y + waveOffset, 0.0, 1.0);
+//   vec3 bottomColor = mix(u_colorBottom, vec3(1.0), 0.15);
+//   vec3 middleColor = mix(u_colorMiddle, vec3(1.0), 0.1);
+//   vec3 topColor = mix(u_colorTop, vec3(1.0), 0.05);
 
+//   vec3 color;
 
-function WaveBackground() {
-  const meshRef = useRef()
-
+//   if (y < 0.5) {
+//     float t = smoothstep(0.0, 0.5, y);
+//     color = mix(bottomColor, middleColor, t);
+//   } else {
+//     float t = smoothstep(0.5, 1.0, y);
+//     color = mix(middleColor, topColor, t);
+//   }
+//   gl_FragColor = vec4(color, 1.0);
+// }
+//     `
+//   )
+//   extend({ WaveShaderMaterial });
   
-  
-  useFrame(({ clock, size }) => {
-    if (meshRef.current) {
-      meshRef.current.material.u_time = clock.getElapsedTime()
-      meshRef.current.material.u_resolution.set(size.width, size.height)
-    }
-  })
-
-  return (
-    <mesh ref={meshRef} position={[0, 0, -20]} >
-      <planeGeometry args={[100, 100]} />
-      <waveShaderMaterial
-       
-        u_amplitude={0.1}
-        u_frequency={10.0}
-        u_speed={0.3}
-      />
-    </mesh>
-  )
-}
-
-// Your existing Model component
+// function WaveBackground() {
+//     const meshRef = useRef()
+//     useFrame(({ clock, size }) => {
+//         if (meshRef.current) {
+//             meshRef.current.material.u_time = clock.getElapsedTime()
+//             meshRef.current.material.u_resolution.set(size.width, size.height)
+//         }
+//     })
+//     return (
+//         <mesh scale={1} ref={meshRef} position={[0, 0, -20]} >
+//             <planeGeometry args={[16, 9]} />
+//             <waveShaderMaterial
+//     u_time={0.3}
+//     u_amplitude={0.1}
+//     u_frequency={8.0}
+//     u_speed={2.0}
+//     u_colorTop={new THREE.Color('#ffffff')}
+//     u_colorMiddle={new THREE.Color('#FE9D50')}
+//     u_colorBottom={new THREE.Color('#FF5600')}
+//   />
+//         </mesh>
+//     )
+// }
 export function Model() {
-  const gltf = useGLTF('/assets/models/fractalGlassModel.glb')
-  const normalMap = useTexture('/assets/models/Material_normal.png') 
-  normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping
-  normalMap.anisotropy = 16
+    const bgmodel = useGLTF('/assets/models/fractalGlassModel.glb')
+    const normalMap = useTexture('/assets/models/Material_normal.png')
+    normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping
+    normalMap.anisotropy = 16
 
-  useEffect(() => {
-    gltf.scene.traverse((child) => {
-      if (child.isMesh) {
-        child.material = new THREE.MeshPhysicalMaterial({
-          color: new THREE.Color(0xffffff),
-          roughness: 0,
-          metalness: 0,
-          transmission: 1,     
-          thickness: 0.5,       
-          transparent: true,
-          opacity: 1,
-          normalMap: normalMap,
-          side: THREE.DoubleSide 
+    useEffect(() => {
+        gltf.scene.traverse((child) => {
+            if (child.isMesh) {
+                child.material = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color(0xffffff),
+                    roughness: 0,
+                    metalness: 0,
+                    transmission: 1,
+                    thickness: 0.5,
+                    transparent: true,
+                    opacity: 1,
+                    // normalMap: normalMap,
+                    side: THREE.DoubleSide
+                })
+            }
         })
-      }
-    })
-  }, [gltf, normalMap])
+    }, [gltf, normalMap])
 
-  return <primitive object={gltf.scene} />
+    return (
+        <>
+         <group
+        ref={bgref}
+        scale={0.8}
+        position={[0, 3, -15]}
+        rotation={[0, 0, 0]}
+      >
+        <mesh geometry={bgmodel.nodes.Plane002.geometry}>
+          <meshStandardMaterial side={THREE.DoubleSide} map={texture} />
+        </mesh>
+      </group>
+        </>
+    )
 }
-
-// Your existing Bgmodel component
 function Bgmodel() {
-  const materialProps2 = useControls({
-    roughness:{value:0.5,min:0,max:1,step:0.2},
-    transmission: { value: 1, min: 0, max: 1 },
-    ior: { value: 1.3, min: 0, max: 3, step: 0.1 },
-    clearcoat: { value: 1, min: 0.1, max: 1 },
-    clearcoatRoughness: { value: 0.0, min: 0, max: 1 },
-    distortionScale: { value: 0.1, min: 0.01, max: 1, step: 0.01 },
-    thickness: { value: 3.51, min: 0, max: 5, step: 0.05 },
-    backsideThickness: { value: 2.72, min: 0, max: 3 },
-    // roughness: { value: 0.0, min: 0, max: 1, step: 0.1 },
-    reflectivity: { value: 0.4, min: 0, max: 1, step: 0.01 },
-    // anisotropy: { value: 0, min: 0, max: 1, step: 0.01 },
-    // chromaticAberration: { value: 0.67, min: 0, max: 1 },
-    // distortion: { value: 1.68, min: 0, max: 4, step: 0.01 },
-    // temporalDistortion: { value: 0.03, min: 0, max: 1, step: 0.01 },
-    // anisotropicBlur: { value: 4.46, min: 0, max: 5, step: 0.01 },
-    // color: "#ffffff",
-    // transmission:{value:0.5,min:0,max:10,step:0.01}
-  })
-  
-  const normalMap = useTexture("/assets/models/Material_normal.png")
-  normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping
-  normalMap.anisotropy = 16
-  
-  const backgroundModel = useGLTF("/assets/models/fractalGlassModel.glb")
-  
-  return (
-    <group
-      scale={2.5}
-      position={[0, 2, -15]}
-      rotation={[0, 0, 0]}
-    >
-      <mesh geometry={backgroundModel.nodes.Plane002.geometry}>
-        <MeshTransmissionMaterial {...materialProps2} />
-      </mesh>
-    </group>
-  )
+    const normalMap = useTexture("/assets/models/Material_normal.png");
+    normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
+    normalMap.anisotropy = 16;
+
+    const backgroundModel = useGLTF("/assets/models/fractalGlassModel.glb");
+
+    return (
+        <group scale={0.5} position={[0, 0, -15]}>
+            <mesh geometry={backgroundModel.nodes.Plane002.geometry}>
+                <meshPhysicalMaterial
+                    transmission={1}
+                    ior={1}        
+                    thickness={1}    
+                    roughness={0}
+                    clearcoat={1}
+                    clearcoatRoughness={0}
+                    reflectivity={1}
+                    opacity={0.5}
+                    transparent={true}
+                    side={THREE.DoubleSide}
+                />
+            </mesh>
+        </group>
+    );
 }
+
 
 export default function MainHero() {
     const [lightPosition, setLightPosition] = useState({
@@ -183,24 +177,32 @@ export default function MainHero() {
             window.removeEventListener("mousemove", mouseMove);
         };
     }, []);
-  return (
-    <div className="relative w-screen h-screen overflow-hidden">
-      <Canvas className="w-full h-full">
-        <ambientLight intensity={0.5} />
-        {/* <directionalLight position={[2, 2, 5]} /> */}
-        <directionalLight
-                            position={[lightPosition.x, lightPosition.y, -50]}
+    return (
+        <div className="relative w-screen h-screen overflow-hidden">
+            <Canvas
+              
+              camera={{ fov: 10, position: [0, 0, 40] }}
+                className="w-full h-full"
+                gl={{
+                    antialias: true,
+                    outputEncoding: THREE.sRGBEncoding,
+                    toneMapping: THREE.ACESFilmicToneMapping,
+                }}
+                linear={true} 
+                flat={true}
+            >
+                {/* <pointLight position={[10, 10, 10]} /> */}
+                <ambientLight intensity={0.5} />
+                {/* <directionalLight position={[2, 2, 5]} /> */}
+                <directionalLight
+                            position={[lightPosition.x, lightPosition.y, 10]}
                             intensity={2}
                         />
-        
-        {/* Wave shader background - positioned behind everything */}
-        <WaveBackground />
-        
-        {/* Your 3D models */}
-        <Bgmodel />
-        
-        <OrbitControls />
-      </Canvas>
-    </div>
-  )
+
+                {/* <WaveBackground /> */}
+                <Bgmodel />
+                <OrbitControls />
+            </Canvas>
+        </div>
+    )
 }
