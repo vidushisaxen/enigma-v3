@@ -11,6 +11,7 @@ import FAQ from './components/homepage/FAQ'
 import WaveShader from './components/WaveShader'
 import MainHero from './components/MainHero'
 import FractalWithWave from './components/homepage/FractalWithWave'
+import Footer from './components/homepage/Footer/index'
 
 const page = () => {
   return (
@@ -30,6 +31,7 @@ const page = () => {
   bottomColor = {[1.0, 0.3, 0.0]} reverse={false}/>
     </div> */}
     {/* <FractalWithWave/> */}
+    <Footer/>
     </>
   );
 };
