@@ -10,6 +10,7 @@ import Achievements from './components/homepage/Achievements'
 import FAQ from './components/homepage/FAQ'
 import WaveShader from './components/WaveShader'
 import MainHero from './components/MainHero'
+import FractalWithWave from './components/homepage/FractalWithWave'
 
 const page = () => {
   return (
@@ -22,7 +23,13 @@ const page = () => {
     <Industries/>
     <Achievements/>
     <Clients/>
-    <FAQ content={faqContent}/>
+    <FAQ content={faqContent}/> 
+     {/* <div className='relative h-screen w-screen bg-black'>
+    <WaveShader topColor = {[0.0, 0.0, 0.0]} 
+  middleColor = {[1.0, 0.5, 0.0]} 
+  bottomColor = {[1.0, 0.3, 0.0]} reverse={false}/>
+    </div> */}
+    {/* <FractalWithWave/> */}
     </>
   );
 };
