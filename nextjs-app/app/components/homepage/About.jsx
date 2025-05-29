@@ -1,5 +1,6 @@
 import Image from "next/image";
 import React from "react";
+import { PrimaryButton } from "../Buttons";
 
 const About = () => {
   return (
@@ -20,15 +21,7 @@ const About = () => {
             tools and our proprietary approach we craft delightful and intuitive
             experiences.
           </p>
-          <button className="w-fit flex">
-            <div className="w-fit h-full px-[3.5vw] py-[0.7vw] rounded-full border border-white font-medium font-display">
-                Say Hi
-            </div>
-            <div className="w-[3.5vw] h-[3.5vw] p-[1.1vw] rounded-full border border-white">
-             <Image src={"/assets/icons/arrow-diagonal.svg"} alt="arrow-diagonal" width={50} height={50} className="w-full h-full object-contain"/>
-            </div>
-
-          </button>
+          <PrimaryButton text={"Say Hi"} href={"#"}/>
         </div>
       </div>
     </section>
