@@ -20,23 +20,23 @@ const page = () => {
     <>
       {/* <HeroComp/> */}
       {/* <Hero/> */}
-      <About />
+      {/* <About />
       <Work />
-      <SectionBreak/>
+      <SectionBreak/> */}
       <Testiomonials />
-      <Solutions />
+      {/* <Solutions />
       <Industries />
       <Achievements />
       <Clients />
-      <FAQ content={faqContent} />
-      <div className="relative h-screen w-screen mt-[-40vw] bg-black">
+      <FAQ content={faqContent} /> */}
+      {/* <div className="relative h-screen w-screen mt-[-40vw] bg-black">
         <WaveShader
           topColor={[1.0, 1.0, 1.0]}
           middleColor={[1.0, 0.5, 0.0]}
           bottomColor={[1.0, 0.3, 0.0]}
           reverse={false}
         />
-      </div>
+      </div> */}
       {/* <Footer/> */}
       {/* <FractalWithWave/> */}
     </>
